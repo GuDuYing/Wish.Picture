@@ -50,6 +50,23 @@
             <div class="wrap small-width">
                 <div id="try"></div>
                 <ul id="box-container">
+                    @{
+                        var pictureListModel = ViewData["PictureList"];
+                        if (pictureListModel != null)
+                        {
+                            var pictureList = pictureListModel as List<Picture>;
+
+                            foreach (var picture in pictureList)
+                            {
+                                <li class="box">
+                                    <a href="@picture.PictureUrl" class="swipebox" title="@picture.PictureName">
+                                        <img src="@picture.PictureUrl" alt="image">
+                                    </a>
+                                </li>
+                            }
+
+                        }
+                    }
                     <li class="box">
                         <a href="~/img/1.jpg" class="swipebox" title="Fog">
                             <img src="~/img/1.jpg" alt="image">
