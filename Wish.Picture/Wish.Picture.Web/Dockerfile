@@ -4,10 +4,12 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster AS build
 WORKDIR /src
-COPY ["Wish.Picture.Web/Wish.Picture.Web.csproj", "Wish.Picture.Web/"]
-RUN dotnet restore "Wish.Picture.Web/Wish.Picture.Web.csproj"
+COPY ["Wish.Picture.Web.csproj", "src/"]
+RUN dotnet restore "src/Wish.Picture.Web.csproj"
 COPY . .
-WORKDIR "/src/Wish.Picture.Web"
+WORKDIR "/src"
+RUN pwd
+RUN ls
 RUN dotnet build "Wish.Picture.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish

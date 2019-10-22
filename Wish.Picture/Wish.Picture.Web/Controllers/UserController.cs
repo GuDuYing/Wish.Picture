@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Wish.Picture.Web.Repository;
 
 namespace Wish.Picture.Web.Controllers
 {
@@ -21,9 +22,15 @@ namespace Wish.Picture.Web.Controllers
 
         public IActionResult UserLogin(string userName, string pwd)
         {
-            if (userName == "admin" && pwd == "admin123")
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(pwd))
             {
-                HttpContext.Session.SetString("LoginUserName","admin");
+                return Content("登陆失败，参数不能为空");
+            }
+
+            var loginUser = new UserRepository().GetUser(userName, pwd);
+            if (loginUser != null && loginUser.Count >= 1)
+            {
+                HttpContext.Session.SetString("LoginUserName",loginUser[0].UserName);
                 return RedirectToAction("Index", "Home");
             }
 
