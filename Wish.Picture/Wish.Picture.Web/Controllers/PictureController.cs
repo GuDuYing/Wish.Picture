@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -91,7 +93,9 @@ namespace Wish.Picture.Web.Controllers
                         string fileName = file.FileName.Substring(file.FileName.LastIndexOf('.')); //文件扩展名
                                                                                                    //DateTime.Now.ToString("yyyyMMddHHmmssffffff")
                         var saveKey = "piture/" + Guid.NewGuid().ToString("N") + fileName;//重命名文件加上时间戳 其中上传地址也可以配置s   
-                        HttpResult result = um.UploadStream(stream, saveKey, uploadToken);
+                        var waterMarkerStream = AddWaterMarker(stream, fileName);
+                        waterMarkerStream.Seek(0, SeekOrigin.Begin);    //将字节流中的position复位  fix 上传图片为空问题
+                        HttpResult result = um.UploadStream(waterMarkerStream, saveKey, uploadToken);
 
                         if (result.Code == 200)
                         {
@@ -122,6 +126,43 @@ namespace Wish.Picture.Web.Controllers
 
 
             
+        }
+
+        private MemoryStream AddWaterMarker(Stream stream,string fileSuffixName)
+        {
+            var watermarkedStream = new MemoryStream();
+            stream.Seek(0, SeekOrigin.Begin);    //修正stream中的position位置
+            using (var img = Image.FromStream(stream))
+            {
+                using (var graphic = Graphics.FromImage(img))
+                {
+                    var font = new Font("WenQuanYi Zen Hei", 20);
+                    var color = Color.FromArgb(128, 255, 0, 126);
+                    var brush = new SolidBrush(color);
+                    var point = new Point(img.Width - 120, img.Height - 30);
+                    graphic.DrawString("木子", font, brush, point);
+                    var format = ImageFormat.Png;
+                    switch (fileSuffixName.ToLower())
+                    {
+                        case ".jpg":
+                        case ".jpeg": 
+                            format = ImageFormat.Jpeg;
+                            break;
+                        case ".png":
+                            format = ImageFormat.Png;
+                            break;
+                        case ".bmp":
+                            format = ImageFormat.Bmp;
+                            break;
+                        case ".icon":
+                            format = ImageFormat.Icon;
+                            break;
+                    }
+                    img.Save(watermarkedStream, format);
+                }
+            }
+
+            return watermarkedStream;
         }
 
     }

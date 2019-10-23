@@ -1,4 +1,11 @@
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.0-buster-slim AS base
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends libgdiplus libc6-dev 
+ENV LANG C.UTF-8
+# ≈‰÷√◊÷ÃÂ
+RUN apt-get install -y --no-install-recommends fontconfig
+RUN fc-list
+RUN apt-get -y install fonts-wqy-zenhei && apt-get clean &&  fc-cache -fv
 WORKDIR /app
 EXPOSE 80
 
